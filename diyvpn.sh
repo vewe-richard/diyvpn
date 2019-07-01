@@ -46,8 +46,6 @@ startclient() {
 	ip route delete default via $defaultrouter
 	ip route add default via $serverip
 	./simpletun -i $clienttundev -c $hkserverip -p $port $debug
-	ip route delete default
-	ip route add default via $defaultrouter
 }
 
 usage() {
