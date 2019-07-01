@@ -367,7 +367,7 @@ int main(int argc, char *argv[]) {
       do_debug("NET2TAP %lu: Read %d bytes from the network\n", net2tap, nread);
 
       /* now buffer[] contains a full packet or frame, write it into the tun/tap interface */ 
-      bufdiscramble(buffer, nread);
+      bufdisscramble(buffer, nread);
       nwrite = cwrite(tap_fd, buffer, nread);
       do_debug("NET2TAP %lu: Written %d bytes to the tap interface\n", net2tap, nwrite);
     }
