@@ -46,6 +46,9 @@
 int debug;
 char *progname;
 
+static void bufscramble(unsigned char *buffer, int len);
+static void bufdisscramble(unsigned char *buffer, int len);
+
 /**************************************************************************
  * tun_alloc: allocates or reconnects to a tun/tap device. The caller     *
  *            must reserve enough space in *dev.                          *
@@ -340,6 +343,7 @@ int main(int argc, char *argv[]) {
       /* write length + packet */
       plength = htons(nread);
       nwrite = cwrite(net_fd, (char *)&plength, sizeof(plength));
+      bufscramble(buffer, nread);
       nwrite = cwrite(net_fd, buffer, nread);
       
       do_debug("TAP2NET %lu: Written %d bytes to the network\n", tap2net, nwrite);
@@ -363,6 +367,7 @@ int main(int argc, char *argv[]) {
       do_debug("NET2TAP %lu: Read %d bytes from the network\n", net2tap, nread);
 
       /* now buffer[] contains a full packet or frame, write it into the tun/tap interface */ 
+      bufdiscramble(buffer, nread);
       nwrite = cwrite(tap_fd, buffer, nread);
       do_debug("NET2TAP %lu: Written %d bytes to the tap interface\n", net2tap, nwrite);
     }
@@ -370,3 +375,28 @@ int main(int argc, char *argv[]) {
   
   return(0);
 }
+
+static void bufscramble(unsigned char *buffer, int len)
+{
+	int i;
+    for (i = 0; i < len; i ++)
+	{
+        if(buffer[i] == 255) buffer[i] = 0;
+		else buffer[i] += 1;
+	}
+}
+
+static void bufdisscramble(unsigned char *buffer, int len)
+{
+	int i;
+    for (i = 0; i < len; i ++)
+	{
+        if(buffer[i] == 0) buffer[i] = 255;
+		else buffer[i] -= 1;
+	}
+}
+
+
+
+
+
